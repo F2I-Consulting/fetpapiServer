@@ -43,10 +43,12 @@ if (WIN32)
 	set_target_properties (${APPLICATION_NAME} PROPERTIES
 		LINK_FLAGS "/INCREMENTAL:NO"
 		RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})	
-	
+endif (WIN32)
+
+if (NOT Boost_USE_STATIC_LIBS)
 	# https://www.boost.org/doc/libs/1_75_0/libs/log/doc/html/log/rationale/namespace_mangling.html
 	target_compile_definitions(${APPLICATION_NAME} PRIVATE BOOST_LOG_DYN_LINK)
-endif (WIN32)
+endif ()
 
 target_compile_definitions(${APPLICATION_NAME} PRIVATE BOOST_ALL_NO_LIB)
 target_link_libraries (${APPLICATION_NAME} PRIVATE ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
