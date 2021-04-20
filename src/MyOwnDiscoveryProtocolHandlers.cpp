@@ -35,7 +35,7 @@ void MyOwnDiscoveryProtocolHandlers::getDataObjectResource(const Energistics::Et
 			Energistics::Etp::v12::Protocol::Core::ProtocolException pe;
 			Energistics::Etp::v12::Datatypes::ErrorInfo error;
 			error.code = 9;
-			error.message = "The URI " + msg.context.uri + " defines a datspace which does not exist on this store.";
+			error.message = "The URI " + msg.context.uri + " defines a dataspace which does not exist on this store.";
 			pe.error.emplace(error);
 
 			session->send(pe, correlationId);
