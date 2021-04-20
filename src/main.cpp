@@ -63,8 +63,7 @@ int main(int argc, char **argv)
 	COMMON_NS::EpcDocument epcDoc(argv[3]);
 	MyDataObjectRepository repo;
 	try {
-		std::string resqmlResult = epcDoc.deserializePartiallyInto(repo, COMMON_NS::DataObjectRepository::openingMode::READ_WRITE); // Do not open XML files. Simply rely on the EPC content type and rel files.
-		repo.registerDataFeeder(&epcDoc); // Necessary to resolve partial objects
+		std::string resqmlResult = epcDoc.deserializeInto(repo, COMMON_NS::DataObjectRepository::openingMode::READ_WRITE);
 		if (!resqmlResult.empty()) {
 			std::cerr << "Warning when deserializing " << resqmlResult << std::endl;
 		}
@@ -86,9 +85,9 @@ int main(int argc, char **argv)
 
 #ifdef WITH_ETP_SSL
 	if (std::stoi(argv[2]) == 443) {
-		ETP_NS::Server etpServer(&serverInitializationParams);
+		ETP_NS::Server etpServer;
 
-		etpServer.listen(argv[1], std::stoi(argv[2]), threadCount,
+		etpServer.listen(&serverInitializationParams, argv[1], std::stoi(argv[2]), threadCount,
 			"-----BEGIN CERTIFICATE-----\n"
 			"MIIDaDCCAlCgAwIBAgIJAO8vBu8i8exWMA0GCSqGSIb3DQEBCwUAMEkxCzAJBgNV\n"
 			"BAYTAlVTMQswCQYDVQQIDAJDQTEtMCsGA1UEBwwkTG9zIEFuZ2VsZXNPPUJlYXN0\n"
@@ -149,8 +148,8 @@ int main(int argc, char **argv)
 	}
 	else {
 #endif
-		ETP_NS::Server etpServer(&serverInitializationParams);
-		etpServer.listen(argv[1], std::stoi(argv[2]), threadCount);
+		ETP_NS::Server etpServer;
+		etpServer.listen(&serverInitializationParams, argv[1], std::stoi(argv[2]), threadCount);
 #ifdef WITH_ETP_SSL
 	}
 #endif

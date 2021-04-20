@@ -33,8 +33,8 @@ void MyOwnDataArrayProtocolHandlers::on_GetDataArrays(const Energistics::Etp::v1
 	Energistics::Etp::v12::Protocol::DataArray::GetDataArraysResponse gdaResponse;
 
 	Energistics::Etp::v12::Protocol::Core::ProtocolException pe;
-	for (std::pair < std::string, Energistics::Etp::v12::Datatypes::DataArrayTypes::DataArrayIdentifier > element : gda.dataArrays) {
-		Energistics::Etp::v12::Datatypes::DataArrayTypes::DataArrayIdentifier& dai = element.second;
+	for (const std::pair < std::string, Energistics::Etp::v12::Datatypes::DataArrayTypes::DataArrayIdentifier >& element : gda.dataArrays) {
+		Energistics::Etp::v12::Datatypes::DataArrayTypes::DataArrayIdentifier dai = element.second;
 		BOOST_LOG_TRIVIAL(trace) << "Data array received uri : " << dai.uri;
 
 		try
@@ -105,11 +105,11 @@ void MyOwnDataArrayProtocolHandlers::on_GetDataArrays(const Energistics::Etp::v1
 	}
 
 	if (!pe.errors.empty()) {
-		session->send(gdaResponse, correlationId, 0x01);
-		session->send(pe, correlationId, 0x01 | 0x02);
+		session->send(gdaResponse, correlationId);
+		session->send(pe, correlationId, 0x02);
 	}
 	else {
-		session->send(gdaResponse, correlationId, 0x01 | 0x02);
+		session->send(gdaResponse, correlationId, 0x02);
 	}
 }
 
@@ -198,7 +198,7 @@ void MyOwnDataArrayProtocolHandlers::on_PutDataArrays(const Energistics::Etp::v1
 	}
 
 	if (!pe.errors.empty()) {
-		session->send(pe, correlationId, 0x01 | 0x02);
+		session->send(pe, correlationId, 0x02);
 	}
 }
 
@@ -263,10 +263,10 @@ void MyOwnDataArrayProtocolHandlers::on_GetDataArrayMetadata(const Energistics::
 	}
 
 	if (!pe.errors.empty()) {
-		session->send(gdamResponse, correlationId, 0x01);
-		session->send(pe, correlationId, 0x01 | 0x02);
+		session->send(gdamResponse, correlationId);
+		session->send(pe, correlationId, 0x02);
 	}
 	else {
-		session->send(gdamResponse, correlationId, 0x01 | 0x02);
+		session->send(gdamResponse, correlationId, 0x02);
 	}
 }

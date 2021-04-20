@@ -28,7 +28,7 @@ set (WITH_ETP_SSL OFF CACHE BOOL "Build Fesapi with ETP SSL support.")
 # checking for required dependencies
 # ============================================================================
 
-find_package(Fetpapi REQUIRED)
+#find_package(Fetpapi REQUIRED)
 
 # Define the compile options according to the compiler
 target_compile_options(${APPLICATION_NAME} PRIVATE
@@ -52,17 +52,6 @@ endif ()
 
 target_compile_definitions(${APPLICATION_NAME} PRIVATE BOOST_ALL_NO_LIB)
 target_link_libraries (${APPLICATION_NAME} PRIVATE ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
-if (WIN32)
-	if (EXISTS ${APPLICATION_NAME} AND EXISTS ${AVRO_LIBRARY_DEBUG})
-		target_link_libraries (${APPLICATION_NAME} PRIVATE optimized ${AVRO_LIBRARY_RELEASE} debug ${AVRO_LIBRARY_DEBUG})
-	elseif (EXISTS ${AVRO_LIBRARY_RELEASE})
-		target_link_libraries (${APPLICATION_NAME} PRIVATE ${AVRO_LIBRARY_RELEASE})
-	elseif (EXISTS ${AVRO_LIBRARY_DEBUG})
-		target_link_libraries (${APPLICATION_NAME} PRIVATE ${AVRO_LIBRARY_DEBUG})
-	endif ()
-else (WIN32)
-	target_link_libraries (${APPLICATION_NAME} PRIVATE ${AVRO_LIBRARY_RELEASE})
-endif (WIN32)
 
 if (WITH_ETP_SSL)
 	target_compile_definitions(${APPLICATION_NAME} PRIVATE WITH_ETP_SSL)
@@ -72,9 +61,10 @@ if (WITH_ETP_SSL)
 	target_link_libraries(${APPLICATION_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 endif ()
 
+#FESAPI
 set (FESAPI_INCLUDE_DIR FESAPI_INCLUDE_DIR-NOTFOUND CACHE PATH "Path to the directory which contains the fesapi header files")
 if (NOT IS_DIRECTORY ${FESAPI_INCLUDE_DIR})
-	message(WARNING "The Fesapi include dir (FESAPI_INCLUDE_DIR variable) does not look to be a valid directory. Please modify it.")
+	message(SEND_ERROR  "The Fesapi include dir (FESAPI_INCLUDE_DIR variable) does not look to be a valid directory. Please modify it.")
 endif ()
 set (FESAPI_LIBRARY_RELEASE FESAPI_LIBRARY_RELEASE-NOTFOUND CACHE FILEPATH "Path to the file which contains the fesapi library release")
 if (NOT EXISTS ${FESAPI_LIBRARY_RELEASE})
@@ -85,6 +75,34 @@ if (NOT EXISTS ${FESAPI_LIBRARY_DEBUG})
 	message(WARNING "The fesapi library (FESAPI_LIBRARY_DEBUG variable) does not look to be a valid file. Please modify it.")
 endif ()
 
+#FETPAPI
+set (FETPAPI_INCLUDE_DIR FETPAPI_INCLUDE_DIR-NOTFOUND CACHE PATH "Path to the directory which contains the FETPAPI header files")
+if (NOT IS_DIRECTORY ${FETPAPI_INCLUDE_DIR})
+	message(SEND_ERROR  "The FETPAPI include dir (FETPAPI_INCLUDE_DIR variable) does not look to be a valid directory. Please modify it.")
+endif ()
+set (FETPAPI_LIBRARY_RELEASE FETPAPI_LIBRARY_RELEASE-NOTFOUND CACHE FILEPATH "Path to the file which contains the FETPAPI library release")
+if (NOT EXISTS ${FETPAPI_LIBRARY_RELEASE})
+	message(WARNING "The FETPAPI library (FETPAPI_LIBRARY_RELEASE variable) does not look to be a valid file. Please modify it.")
+endif ()
+set (FETPAPI_LIBRARY_DEBUG FETPAPI_LIBRARY_DEBUG-NOTFOUND CACHE FILEPATH "Path to the file which contains the FETPAPI library DEBUG")
+if (NOT EXISTS ${FETPAPI_LIBRARY_DEBUG})
+	message(WARNING "The FETPAPI library (FETPAPI_LIBRARY_DEBUG variable) does not look to be a valid file. Please modify it.")
+endif ()
+
+#AVRO
+set (AVRO_INCLUDE_DIR AVRO_INCLUDE_DIR-NOTFOUND CACHE PATH "Path to the directory which contains the avro header files")
+if (NOT IS_DIRECTORY ${AVRO_INCLUDE_DIR})
+	message(SEND_ERROR "The Avro include dir (AVRO_INCLUDE_DIR variable) does not look to be a valid directory. Please modify it.")
+endif ()
+set (AVRO_LIBRARY_RELEASE AVRO_LIBRARY_RELEASE-NOTFOUND CACHE FILEPATH "Path to the file which contains the avro library release")
+if (NOT EXISTS ${AVRO_LIBRARY_RELEASE})
+	message(WARNING "The avro library (AVRO_LIBRARY_RELEASE variable) does not look to be a valid file. Please modify it.")
+endif ()
+set (AVRO_LIBRARY_DEBUG AVRO_LIBRARY_DEBUG-NOTFOUND CACHE FILEPATH "Path to the file which contains the AVRO library DEBUG")
+if (NOT EXISTS ${AVRO_LIBRARY_DEBUG})
+	message(WARNING "The AVRO library (AVRO_LIBRARY_DEBUG variable) does not look to be a valid file. Please modify it.")
+endif ()
+
 if (WIN32)
 	if (EXISTS ${FESAPI_LIBRARY_RELEASE} AND EXISTS ${FESAPI_LIBRARY_DEBUG})
 		target_link_libraries (${APPLICATION_NAME} PRIVATE optimized ${FESAPI_LIBRARY_RELEASE} debug ${FESAPI_LIBRARY_DEBUG})
@@ -93,11 +111,28 @@ if (WIN32)
 	elseif (EXISTS ${FESAPI_LIBRARY_DEBUG})
 		target_link_libraries (${APPLICATION_NAME} PRIVATE ${FESAPI_LIBRARY_DEBUG})
 	endif ()
+	
+	if (EXISTS ${FETPAPI_LIBRARY_RELEASE} AND EXISTS ${FETPAPI_LIBRARY_DEBUG})
+		target_link_libraries (${APPLICATION_NAME} PRIVATE optimized ${FETPAPI_LIBRARY_RELEASE} debug ${FETPAPI_LIBRARY_DEBUG})
+	elseif (EXISTS ${FETPAPI_LIBRARY_RELEASE})
+		target_link_libraries (${APPLICATION_NAME} PRIVATE ${FETPAPI_LIBRARY_RELEASE})
+	elseif (EXISTS ${FETPAPI_LIBRARY_DEBUG})
+		target_link_libraries (${APPLICATION_NAME} PRIVATE ${FETPAPI_LIBRARY_DEBUG})
+	endif ()
+	
+	if (EXISTS ${AVRO_LIBRARY_RELEASE} AND EXISTS ${AVRO_LIBRARY_DEBUG})
+		target_link_libraries (${APPLICATION_NAME} PRIVATE optimized ${AVRO_LIBRARY_RELEASE} debug ${AVRO_LIBRARY_DEBUG})
+	elseif (EXISTS ${AVRO_LIBRARY_RELEASE})
+		target_link_libraries (${APPLICATION_NAME} PRIVATE ${AVRO_LIBRARY_RELEASE})
+	elseif (EXISTS ${AVRO_LIBRARY_DEBUG})
+		target_link_libraries (${APPLICATION_NAME} PRIVATE ${AVRO_LIBRARY_DEBUG})
+	endif ()	
 else (WIN32)
 	target_link_libraries (${APPLICATION_NAME} PRIVATE ${FESAPI_LIBRARY_RELEASE})
+	target_link_libraries (${APPLICATION_NAME} PRIVATE ${AVRO_LIBRARY_RELEASE})
 endif (WIN32)
 
-target_link_libraries(${APPLICATION_NAME} PRIVATE Fetpapi::Fetpapi)
+#target_link_libraries(${APPLICATION_NAME} PRIVATE Fetpapi::Fetpapi)
 
 # ============================================================================
 # Getting source files
@@ -105,10 +140,11 @@ target_link_libraries(${APPLICATION_NAME} PRIVATE Fetpapi::Fetpapi)
 
 file (GLOB ALL_CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 file (GLOB ALL_H_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h)
-target_include_directories(${APPLICATION_NAME} PRIVATE ${FESAPI_INCLUDE_DIR})
 
 target_sources(${APPLICATION_NAME} PRIVATE ${ALL_CPP_FILES} ${ALL_H_FILES})
 
+target_include_directories(${APPLICATION_NAME} PRIVATE ${FESAPI_INCLUDE_DIR})
+target_include_directories(${APPLICATION_NAME} PRIVATE ${FETPAPI_INCLUDE_DIR})
 target_include_directories(${APPLICATION_NAME} PRIVATE ${AVRO_INCLUDE_DIR} ${Boost_INCLUDE_DIR})
 if (WITH_ETP_SSL)
 	target_include_directories(${APPLICATION_NAME} PRIVATE ${OPENSSL_INCLUDE_DIR})
