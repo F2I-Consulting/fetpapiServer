@@ -35,7 +35,7 @@ void MyOwnDiscoveryProtocolHandlers::getDataObjectResource(const Energistics::Et
 			Energistics::Etp::v12::Protocol::Core::ProtocolException pe;
 			Energistics::Etp::v12::Datatypes::ErrorInfo error;
 			error.code = 9;
-			error.message = "The URI " + msg.context.uri + " defines a datspace which does not exist on this store.";
+			error.message = "The URI " + msg.context.uri + " defines a dataspace which does not exist on this store.";
 			pe.error.emplace(error);
 
 			session->send(pe, correlationId);
@@ -64,7 +64,9 @@ void MyOwnDiscoveryProtocolHandlers::getDataObjectResource(const Energistics::Et
 			std::string namespaceStar = qualifiedType.substr(0, qualifiedType.find(".") + 1) + "*";
 			if (msg.context.dataObjectTypes.empty() || std::find(msg.context.dataObjectTypes.begin(), msg.context.dataObjectTypes.end(), qualifiedType) != msg.context.dataObjectTypes.end()
 				|| std::find(msg.context.dataObjectTypes.begin(), msg.context.dataObjectTypes.end(), namespaceStar) != msg.context.dataObjectTypes.end()) {
-				result.push_back(ETP_NS::FesapiHelpers::buildEtpResourceFromEnergisticsObject(obj, msg.countObjects));
+				if (!obj->isPartial()) {
+					result.push_back(ETP_NS::FesapiHelpers::buildEtpResourceFromEnergisticsObject(obj, msg.countObjects));
+				}
 			}
 		}
 
@@ -162,8 +164,10 @@ void MyOwnDiscoveryProtocolHandlers::on_GetResources(const Energistics::Etp::v12
 
 		for (const auto & pair : groupedDataObj) {
 			for (const auto* obj : pair.second) {
-				nextGr.context.uri = obj->buildEtp12Uri();
-				getDataObjectResource(nextGr, correlationId, mb.resources);
+				if (!obj->isPartial()) {
+					nextGr.context.uri = obj->buildEtp12Uri();
+					getDataObjectResource(nextGr, correlationId, mb.resources);
+				}
 			}
 		}
 	}

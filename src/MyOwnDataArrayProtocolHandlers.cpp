@@ -33,8 +33,8 @@ void MyOwnDataArrayProtocolHandlers::on_GetDataArrays(const Energistics::Etp::v1
 	Energistics::Etp::v12::Protocol::DataArray::GetDataArraysResponse gdaResponse;
 
 	Energistics::Etp::v12::Protocol::Core::ProtocolException pe;
-	for (std::pair < std::string, Energistics::Etp::v12::Datatypes::DataArrayTypes::DataArrayIdentifier > element : gda.dataArrays) {
-		Energistics::Etp::v12::Datatypes::DataArrayTypes::DataArrayIdentifier& dai = element.second;
+	for (const std::pair < std::string, Energistics::Etp::v12::Datatypes::DataArrayTypes::DataArrayIdentifier >& element : gda.dataArrays) {
+		Energistics::Etp::v12::Datatypes::DataArrayTypes::DataArrayIdentifier dai = element.second;
 		BOOST_LOG_TRIVIAL(trace) << "Data array received uri : " << dai.uri;
 
 		try
@@ -105,11 +105,11 @@ void MyOwnDataArrayProtocolHandlers::on_GetDataArrays(const Energistics::Etp::v1
 	}
 
 	if (!pe.errors.empty()) {
-		session->send(gdaResponse, correlationId, 0x01);
-		session->send(pe, correlationId, 0x01 | 0x02);
+		session->send(gdaResponse, correlationId);
+		session->send(pe, correlationId, 0x02);
 	}
 	else {
-		session->send(gdaResponse, correlationId, 0x01 | 0x02);
+		session->send(gdaResponse, correlationId, 0x02);
 	}
 }
 
@@ -198,7 +198,106 @@ void MyOwnDataArrayProtocolHandlers::on_PutDataArrays(const Energistics::Etp::v1
 	}
 
 	if (!pe.errors.empty()) {
-		session->send(pe, correlationId, 0x01 | 0x02);
+		session->send(pe, correlationId, 0x02);
+	}
+}
+
+void MyOwnDataArrayProtocolHandlers::on_GetDataSubarrays(const Energistics::Etp::v12::Protocol::DataArray::GetDataSubarrays & msg, int64_t correlationId)
+{
+	Energistics::Etp::v12::Protocol::DataArray::GetDataSubarraysResponse response;
+
+	Energistics::Etp::v12::Protocol::Core::ProtocolException pe;
+	for (const std::pair < std::string, Energistics::Etp::v12::Datatypes::DataArrayTypes::GetDataSubarraysType >& element : msg.dataSubarrays) {
+		Energistics::Etp::v12::Datatypes::DataArrayTypes::DataArrayIdentifier dai = element.second.uid;
+		BOOST_LOG_TRIVIAL(trace) << "Data subarray received uri : " << dai.uri;
+		for (auto start : element.second.starts) {
+			BOOST_LOG_TRIVIAL(trace) << "Data subarray received start : " << start;
+		}
+		for (auto count : element.second.counts) {
+			BOOST_LOG_TRIVIAL(trace) << "Data subarray received count : " << count;
+		}
+
+		try
+		{
+			COMMON_NS::AbstractObject* obj = repo->getObjectFromUri(dai.uri);
+			EML2_NS::AbstractHdfProxy* hdfProxy = dynamic_cast<EML2_NS::AbstractHdfProxy*>(obj);
+			if (hdfProxy == nullptr) {
+				pe.errors[element.first].message = "The URI points to an object which is not an HDF proxy";
+				pe.errors[element.first].code = 9;
+				continue;
+			}
+
+			BOOST_LOG_TRIVIAL(trace) << "Received pathInResource : " << dai.pathInResource;
+			Energistics::Etp::v12::Datatypes::DataArrayTypes::DataArray da;
+			da.dimensions.reserve(element.second.counts.size());
+			size_t globalElemCount = 1;
+			for (auto count : element.second.counts) {
+				da.dimensions.push_back(count);
+				globalElemCount *= count;
+			}
+
+			std::unique_ptr<unsigned long long[]> counts(new unsigned long long[element.second.counts.size()]);
+			for (size_t i = 0; i < element.second.counts.size(); ++i) {
+				counts[i] = element.second.counts[i];
+			}
+			std::unique_ptr<unsigned long long[]> starts(new unsigned long long[element.second.starts.size()]);
+			for (size_t i = 0; i < element.second.starts.size(); ++i) {
+				starts[i] = element.second.starts[i];
+			}
+
+			auto dt = hdfProxy->getHdfDatatypeInDataset(dai.pathInResource);
+			if (dt == COMMON_NS::AbstractObject::DOUBLE)
+			{
+				Energistics::Etp::v12::Datatypes::ArrayOfDouble avroArray;
+				avroArray.values = std::vector<double>(globalElemCount);
+				hdfProxy->readArrayNdOfDoubleValues(dai.pathInResource, avroArray.values.data(), counts.get(), starts.get(), element.second.counts.size());
+				da.data.item.set_ArrayOfDouble(avroArray);
+			}
+			else if (dt == COMMON_NS::AbstractObject::FLOAT)
+			{
+				Energistics::Etp::v12::Datatypes::ArrayOfFloat avroArray;
+				avroArray.values = std::vector<float>(globalElemCount);
+				hdfProxy->readArrayNdOfFloatValues(dai.pathInResource, avroArray.values.data(), counts.get(), starts.get(), element.second.counts.size());
+				da.data.item.set_ArrayOfFloat(avroArray);
+			}
+			else if (dt == COMMON_NS::AbstractObject::LONG_64 || dt == COMMON_NS::AbstractObject::ULONG_64)
+			{
+				Energistics::Etp::v12::Datatypes::ArrayOfLong avroArray;
+				avroArray.values = std::vector<LONG64>(globalElemCount);
+				hdfProxy->readArrayNdOfInt64Values(dai.pathInResource, avroArray.values.data(), counts.get(), starts.get(), element.second.counts.size());
+				da.data.item.set_ArrayOfLong(avroArray);
+			}
+			else if (dt == COMMON_NS::AbstractObject::INT || dt == COMMON_NS::AbstractObject::UINT ||
+				dt == COMMON_NS::AbstractObject::SHORT || dt == COMMON_NS::AbstractObject::USHORT)
+			{
+				Energistics::Etp::v12::Datatypes::ArrayOfInt avroArray;
+				avroArray.values = std::vector<int>(globalElemCount);
+				hdfProxy->readArrayNdOfIntValues(dai.pathInResource, avroArray.values.data(), counts.get(), starts.get(), element.second.counts.size());
+				da.data.item.set_ArrayOfInt(avroArray);
+			}
+			else if (dt == COMMON_NS::AbstractObject::CHAR || dt == COMMON_NS::AbstractObject::UCHAR)
+			{
+				pe.errors[element.first].message = "This server does not support slicing on 8 bits values array";
+				pe.errors[element.first].code = 7;
+				continue;
+			}
+
+			response.dataSubarrays[element.first] = da;
+		}
+		catch (ETP_NS::EtpException& ex)
+		{
+			pe.errors[element.first].message = ex.what();
+			pe.errors[element.first].code = ex.getErrorCode();
+			continue;
+		}
+	}
+
+	if (!pe.errors.empty()) {
+		session->send(response, correlationId);
+		session->send(pe, correlationId, 0x02);
+	}
+	else {
+		session->send(response, correlationId, 0x02);
 	}
 }
 
@@ -263,10 +362,10 @@ void MyOwnDataArrayProtocolHandlers::on_GetDataArrayMetadata(const Energistics::
 	}
 
 	if (!pe.errors.empty()) {
-		session->send(gdamResponse, correlationId, 0x01);
-		session->send(pe, correlationId, 0x01 | 0x02);
+		session->send(gdamResponse, correlationId);
+		session->send(pe, correlationId, 0x02);
 	}
 	else {
-		session->send(gdamResponse, correlationId, 0x01 | 0x02);
+		session->send(gdamResponse, correlationId, 0x02);
 	}
 }

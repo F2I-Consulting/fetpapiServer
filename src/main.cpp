@@ -16,29 +16,28 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -----------------------------------------------------------------------*/
-
 #include <boost/log/trivial.hpp>
 
-#ifdef WITH_ETP_SSL
-#include "fetpapi/etp/ssl/SslServerSession.h"
-#endif
-#include "fetpapi/etp/PlainServerSession.h"
+#include <fesapi/common/EpcDocument.h>
 
-#include "fetpapi/etp/Server.h"
+#include <fesapi/resqml2/AbstractRepresentation.h>
+
+#include <fesapi/resqml2_0_1/ContinuousProperty.h>
+
+#ifdef WITH_ETP_SSL
+#include <fetpapi/etp/ssl/SslServerSession.h>
+#endif
+#include <fetpapi/etp/PlainServerSession.h>
+#include <fetpapi/etp/Server.h>
 
 #include "MyServerInitializationParameters.h"
-
-#include "fesapi/common/EpcDocument.h"
-
-#include "fesapi/resqml2/AbstractRepresentation.h"
-#include "fesapi/resqml2_0_1/ContinuousProperty.h"
 
 void generateProperties(RESQML2_NS::AbstractRepresentation* ijkgrid)
 {
 	for (unsigned short i = 0; i < (std::numeric_limits<unsigned short>::max)(); ++i) {
 		auto name = "Two faulted sugar cubes timestamp " + std::to_string(i);
 		RESQML2_NS::ContinuousProperty* continuousProp = ijkgrid->getRepository()->createContinuousProperty(ijkgrid, "", name, 1,
-			gsoap_eml2_3::resqml22__IndexableElement__cells, gsoap_resqml2_0_1::resqml20__ResqmlUom__m, gsoap_resqml2_0_1::resqml20__ResqmlPropertyKind__length);
+			gsoap_eml2_3::resqml22__IndexableElement::cells, gsoap_resqml2_0_1::resqml20__ResqmlUom::m, gsoap_resqml2_0_1::resqml20__ResqmlPropertyKind::length);
 
 		double prop1Values[2] = { i, i };
 		continuousProp->pushBackDoubleHdf5Array3dOfValues(prop1Values, 2, 1, 1, nullptr);
@@ -55,8 +54,8 @@ void generateProperties(RESQML2_NS::AbstractRepresentation* ijkgrid)
 int main(int argc, char **argv)
 {
 	if (argc < 4) {
-		std::cerr << "The command must be : etpServerExample ipAddress port epcFileName" << std::endl;
-		std::cerr << "EXAMPLE : ./etpServerExample 127.0.0.1 8080 ../../testingPackageCpp.epc" << std::endl;
+		std::cerr << "The command must be : fetpapiServer ipAddress port epcFileName" << std::endl;
+		std::cerr << "EXAMPLE : ./fetpapiServer.exe 127.0.0.1 8080 ../../testingPackageCpp.epc" << std::endl;
 
 		return 1;
 	}
@@ -64,8 +63,7 @@ int main(int argc, char **argv)
 	COMMON_NS::EpcDocument epcDoc(argv[3]);
 	MyDataObjectRepository repo;
 	try {
-		std::string resqmlResult = epcDoc.deserializePartiallyInto(repo, COMMON_NS::DataObjectRepository::openingMode::READ_WRITE); // Do not open XML files. Simply rely on the EPC content type and rel files.
-		repo.registerDataFeeder(&epcDoc); // Necessary to resolve partial objects
+		std::string resqmlResult = epcDoc.deserializeInto(repo, COMMON_NS::DataObjectRepository::openingMode::READ_WRITE);
 		if (!resqmlResult.empty()) {
 			std::cerr << "Warning when deserializing " << resqmlResult << std::endl;
 		}
@@ -87,9 +85,9 @@ int main(int argc, char **argv)
 
 #ifdef WITH_ETP_SSL
 	if (std::stoi(argv[2]) == 443) {
-		ETP_NS::Server etpServer(&serverInitializationParams);
+		ETP_NS::Server etpServer;
 
-		etpServer.listen(argv[1], std::stoi(argv[2]), threadCount,
+		etpServer.listen(&serverInitializationParams, argv[1], std::stoi(argv[2]), threadCount,
 			"-----BEGIN CERTIFICATE-----\n"
 			"MIIDaDCCAlCgAwIBAgIJAO8vBu8i8exWMA0GCSqGSIb3DQEBCwUAMEkxCzAJBgNV\n"
 			"BAYTAlVTMQswCQYDVQQIDAJDQTEtMCsGA1UEBwwkTG9zIEFuZ2VsZXNPPUJlYXN0\n"
@@ -150,8 +148,8 @@ int main(int argc, char **argv)
 	}
 	else {
 #endif
-		ETP_NS::Server etpServer(&serverInitializationParams);
-		etpServer.listen(argv[1], std::stoi(argv[2]), threadCount);
+		ETP_NS::Server etpServer;
+		etpServer.listen(&serverInitializationParams, argv[1], std::stoi(argv[2]), threadCount);
 #ifdef WITH_ETP_SSL
 	}
 #endif
