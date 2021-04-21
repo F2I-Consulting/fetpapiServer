@@ -148,7 +148,8 @@ cd .. && \
 mkdir fetpapiServer-build && \
 cd fetpapiServer-build && \
 cmake3 \
-	-DFetpapi_DIR=../fetpapi-build/install/lib64/cmake/Fetpapi \
+	-DFETPAPI_INCLUDE_DIR=../fetpapi-build/install/include \
+	-DFETPAPI_LIBRARY_RELEASE=../fetpapi-build/install/lib64/libFetpapi.so \
 	-DBoost_INCLUDE_DIR=/usr/include/boost169 \
 	-DBOOST_LIBRARYDIR=/usr/lib64/boost169 \
 	-DAVRO_INCLUDE_DIR=/usr/local/include/avro \
