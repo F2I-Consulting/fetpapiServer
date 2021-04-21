@@ -236,11 +236,11 @@ void MyOwnDataArrayProtocolHandlers::on_GetDataSubarrays(const Energistics::Etp:
 				globalElemCount *= count;
 			}
 
-			std::unique_ptr<uint64_t[]> counts(new uint64_t[element.second.counts.size()]);
+			std::unique_ptr<unsigned long long[]> counts(new unsigned long long[element.second.counts.size()]);
 			for (size_t i = 0; i < element.second.counts.size(); ++i) {
 				counts[i] = element.second.counts[i];
 			}
-			std::unique_ptr<uint64_t[]> starts(new uint64_t[element.second.starts.size()]);
+			std::unique_ptr<unsigned long long[]> starts(new unsigned long long[element.second.starts.size()]);
 			for (size_t i = 0; i < element.second.starts.size(); ++i) {
 				starts[i] = element.second.starts[i];
 			}
