@@ -35,9 +35,9 @@ public class FetpapiServer {
 	}
 
 	public static void main(String[] args) {
-		MyServerInitializationParameters initParams = new MyServerInitializationParameters();
+		MyServerInitializationParameters initParams = new MyServerInitializationParameters("5c7ed7bc-10dc-47f5-93e4-1de0421a5156", "127.0.0.1", 8080);
 		Server etpServer = new Server();
-		etpServer.listen(initParams, "127.0.0.1", 8080, 2);
+		etpServer.listen(initParams, 2);
 		
 		System.out.println("FINISHED");
 	}

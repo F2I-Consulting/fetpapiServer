@@ -20,11 +20,11 @@ under the License.
 
 #include <boost/log/trivial.hpp>
 
-#include "fetpapi/etp/AbstractSession.h"
-#include "fetpapi/etp/EtpException.h"
-#include "fetpapi/etp/EtpHelpers.h"
+#include <fetpapi/etp/AbstractSession.h>
+#include <fetpapi/etp/EtpException.h>
+#include <fetpapi/etp/EtpHelpers.h>
 
-#include "fesapi/eml2/AbstractHdfProxy.h"
+#include <fesapi/eml2/AbstractHdfProxy.h>
 
 #include "MyDataObjectRepository.h"
 

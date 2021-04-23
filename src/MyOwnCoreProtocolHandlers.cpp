@@ -21,10 +21,10 @@ under the License.
 #include <boost/log/trivial.hpp>
 
 #include "MyServerInitializationParameters.h"
-#include "fetpapi/etp/AbstractSession.h"
-#include "fetpapi/etp/EtpHelpers.h"
+#include <fetpapi/etp/AbstractSession.h>
+#include <fetpapi/etp/EtpHelpers.h>
 
-#include "fetpapi/tools/date.h"
+#include <fetpapi/tools/date.h>
 
 void MyOwnCoreProtocolHandlers::on_RequestSession(const Energistics::Etp::v12::Protocol::Core::RequestSession & rs, int64_t correlationId)
 {
@@ -58,7 +58,7 @@ void MyOwnCoreProtocolHandlers::on_RequestSession(const Energistics::Etp::v12::P
 	openSession.applicationName = serverInitializationParams_->getApplicationName();
 	openSession.applicationVersion = serverInitializationParams_->getApplicationVersion();
 	std::copy(std::begin(session->getIdentifier().data), std::end(session->getIdentifier().data), openSession.sessionId.array.begin());
-	std::copy(std::begin(serverInitializationParams_->getServerInstanceId().data), std::end(serverInitializationParams_->getServerInstanceId().data), openSession.serverInstanceId.array.begin());
+	std::copy(std::begin(serverInitializationParams_->getInstanceId().data), std::end(serverInitializationParams_->getInstanceId().data), openSession.serverInstanceId.array.begin());
 	openSession.supportedFormats.push_back("xml");
 	openSession.supportedProtocols = requestedAndSupportedProtocols;
 	openSession.endpointCapabilities = serverInitializationParams_->makeEndpointCapabilities();

@@ -18,7 +18,7 @@ under the License.
 -----------------------------------------------------------------------*/
 #pragma once
 
-#include "fetpapi/etp/ServerInitializationParameters.h"
+#include <fetpapi/etp/ServerInitializationParameters.h>
 
 #include <vector>
 
@@ -37,10 +37,7 @@ private:
 	MyDataObjectRepository* repo_;
 
 public:
-	MyServerInitializationParameters(MyDataObjectRepository* repo): repo_(repo) {
-		boost::uuids::random_generator gen;
-		identifier = gen();
-	}
+	MyServerInitializationParameters(MyDataObjectRepository* repo, boost::uuids::uuid instanceUuid, const std::string & host, unsigned short port) : ETP_NS::ServerInitializationParameters(instanceUuid, host, port), repo_(repo) {}
 	~MyServerInitializationParameters() = default;
 
 	void postSessionCreationOperation(ETP_NS::AbstractSession* session) const final {

@@ -23,8 +23,8 @@ import com.f2i_consulting.fetpapi.etp.ServerInitializationParameters;
 import com.f2i_consulting.fetpapi.server.handlers.MyOwnServerCoreHandlers;
 
 public class MyServerInitializationParameters extends ServerInitializationParameters {
-	public MyServerInitializationParameters() {
-		super();
+	public MyServerInitializationParameters(String uuid, String host, int port) {
+		super(uuid, host, port);
 	}
 
 	@Override

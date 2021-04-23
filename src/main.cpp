@@ -78,7 +78,8 @@ int main(int argc, char **argv)
 		generatePropertiesThread.detach(); // Detach the thread since we don't want it to be a blocking one.
 	}
 
-	MyServerInitializationParameters serverInitializationParams(&repo);
+	boost::uuids::random_generator gen;
+	MyServerInitializationParameters serverInitializationParams(&repo, gen(), argv[1], std::stoi(argv[2]));
 
 	const int threadCount = 2;
 	BOOST_LOG_TRIVIAL(trace) << "Start listening on " << argv[1] << ":" << argv[2] << " with " << threadCount << " threads...";
@@ -87,7 +88,7 @@ int main(int argc, char **argv)
 	if (std::stoi(argv[2]) == 443) {
 		ETP_NS::Server etpServer;
 
-		etpServer.listen(&serverInitializationParams, argv[1], std::stoi(argv[2]), threadCount,
+		etpServer.listen(&serverInitializationParams, threadCount,
 			"-----BEGIN CERTIFICATE-----\n"
 			"MIIDaDCCAlCgAwIBAgIJAO8vBu8i8exWMA0GCSqGSIb3DQEBCwUAMEkxCzAJBgNV\n"
 			"BAYTAlVTMQswCQYDVQQIDAJDQTEtMCsGA1UEBwwkTG9zIEFuZ2VsZXNPPUJlYXN0\n"
@@ -149,7 +150,7 @@ int main(int argc, char **argv)
 	else {
 #endif
 		ETP_NS::Server etpServer;
-		etpServer.listen(&serverInitializationParams, argv[1], std::stoi(argv[2]), threadCount);
+		etpServer.listen(&serverInitializationParams, threadCount);
 #ifdef WITH_ETP_SSL
 	}
 #endif
