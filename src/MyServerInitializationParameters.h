@@ -18,14 +18,15 @@ under the License.
 -----------------------------------------------------------------------*/
 #pragma once
 
-#include "fetpapi/etp/ServerInitializationParameters.h"
+#include <fetpapi/etp/ServerInitializationParameters.h>
 
 #include <vector>
 
 #include <boost/uuid/random_generator.hpp>
 
+#include <fetpapi/etp/ProtocolHandlers/CoreHandlers.h>
+
 #include "MyDataObjectRepository.h"
-#include "MyOwnCoreProtocolHandlers.h"
 #include "MyOwnDiscoveryProtocolHandlers.h"
 #include "MyOwnStoreProtocolHandlers.h"
 #include "MyOwnStoreNotificationProtocolHandlers.h"
@@ -37,14 +38,11 @@ private:
 	MyDataObjectRepository* repo_;
 
 public:
-	MyServerInitializationParameters(MyDataObjectRepository* repo): repo_(repo) {
-		boost::uuids::random_generator gen;
-		identifier = gen();
-	}
+	MyServerInitializationParameters(MyDataObjectRepository* repo, boost::uuids::uuid instanceUuid, const std::string & host, unsigned short port) : ETP_NS::ServerInitializationParameters(instanceUuid, host, port), repo_(repo) {}
 	~MyServerInitializationParameters() = default;
 
 	void postSessionCreationOperation(ETP_NS::AbstractSession* session) const final {
-		session->setCoreProtocolHandlers(std::make_shared<MyOwnCoreProtocolHandlers>(session, this));
+		session->setCoreProtocolHandlers(std::make_shared<ETP_NS::CoreHandlers>(session));
 		session->setDiscoveryProtocolHandlers(std::make_shared<MyOwnDiscoveryProtocolHandlers>(session, repo_));
 		session->setStoreProtocolHandlers(std::make_shared<MyOwnStoreProtocolHandlers>(session, repo_));
 		session->setStoreNotificationProtocolHandlers(std::make_shared<MyOwnStoreNotificationProtocolHandlers>(session, repo_));

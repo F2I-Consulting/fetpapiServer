@@ -36,7 +36,7 @@ public class MyOwnServerCoreHandlers extends CoreHandlers {
 	public void on_RequestSession(RequestSession rs, long correlationId) {
 		System.out.println("Requested a session");
 		
-        MyServerInitializationParameters serverInitializationParams = new MyServerInitializationParameters();
+        MyServerInitializationParameters serverInitializationParams = new MyServerInitializationParameters("5c7ed7bc-10dc-47f5-93e4-1de0421a5156", "127.0.0.1", 8080);
 
 		// Build Open Session message
 		OpenSession openSession = new OpenSession();
