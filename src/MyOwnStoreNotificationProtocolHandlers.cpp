@@ -30,9 +30,10 @@ MyOwnStoreNotificationProtocolHandlers::MyOwnStoreNotificationProtocolHandlers(E
 
 void MyOwnStoreNotificationProtocolHandlers::on_SubscribeNotifications(const Energistics::Etp::v12::Protocol::StoreNotification::SubscribeNotifications & msg, int64_t messageId)
 {
+	Energistics::Etp::v12::Protocol::StoreNotification::SubscribeNotificationsResponse response;
 	for (const auto& subscriptionInfo : msg.request) {
 		session->subscriptions[messageId] = subscriptionInfo.second;
-
+		/*
 		auto journal = repo->getJournal();
 		auto startime = subscriptionInfo.second.startTime;
 		const auto firstInJournal = std::find_if(journal.begin(), journal.end(),
@@ -56,5 +57,9 @@ void MyOwnStoreNotificationProtocolHandlers::on_SubscribeNotifications(const Ene
 		if (!updated.empty()) {
 			repo->on_UpdateDataObject(created);
 		}
+		*/
+
+		response.success[subscriptionInfo.first] = "";
 	}
+	session->send(response, messageId, 0x02);
 }

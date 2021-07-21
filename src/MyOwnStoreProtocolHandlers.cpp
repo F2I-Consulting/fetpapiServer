@@ -20,12 +20,10 @@ under the License.
 
 #include <boost/log/trivial.hpp>
 
-#include "fetpapi/etp/AbstractSession.h"
-#include "fetpapi/etp/fesapi/FesapiHelpers.h"
-#include "fetpapi/etp/EtpException.h"
-
-#include "fesapi/resqml2/AbstractGridRepresentation.h"
-#include "fesapi/resqml2/GridConnectionSetRepresentation.h"
+#include <fetpapi/etp/AbstractSession.h>
+#include <fetpapi/etp/fesapi/FesapiHelpers.h>
+#include <fetpapi/etp/EtpException.h>
+#include <fetpapi/etp/EtpHelpers.h>
 
 #include "MyDataObjectRepository.h"
 
@@ -72,12 +70,14 @@ void MyOwnStoreProtocolHandlers::on_PutDataObjects(const Energistics::Etp::v12::
 	Energistics::Etp::v12::Protocol::Store::PutDataObjectsResponse objResponse;
 
 	Energistics::Etp::v12::Protocol::Core::ProtocolException pe;
-	for (const auto & pair : msg.dataObjects) {
-		BOOST_LOG_TRIVIAL(trace) << "Store received data object : " << pair.second.resource.dataObjectType << " (" << pair.second.resource.uri << ")";
+	for (const auto& pair : msg.dataObjects) {
+		BOOST_LOG_TRIVIAL(trace) << "Store received data object : " << pair.second.resource.uri;
 
-		COMMON_NS::AbstractObject* importedObj = repo->addOrReplaceGsoapProxy(pair.second.data, pair.second.resource.dataObjectType);
+		const std::string dataObjectType = ETP_NS::EtpHelpers::getDataObjectType(pair.second.resource.uri);
+
+		COMMON_NS::AbstractObject* importedObj = repo->addOrReplaceGsoapProxy(pair.second.data, dataObjectType);
 		if (importedObj == nullptr) {
-			pe.errors[pair.first].message = "Could not put the dataobject with content type " + pair.second.resource.dataObjectType;
+			pe.errors[pair.first].message = "Could not put the dataobject with content type " + dataObjectType;
 			pe.errors[pair.first].code = 4001;
 			continue;
 		}

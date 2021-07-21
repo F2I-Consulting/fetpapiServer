@@ -68,8 +68,8 @@ int main(int argc, char **argv)
 			std::cerr << "Warning when deserializing " << resqmlResult << std::endl;
 		}
 	}
-	catch (const std::exception&) {
-		std::cerr << "Could not deserialize the EPC document named " << argv[3] << std::endl;
+	catch (const std::exception& ex) {
+		std::cerr << "Could not deserialize the EPC document named " << argv[3] << " : " << ex.what() << std::endl;
 		return 1;
 	}
 

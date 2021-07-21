@@ -143,7 +143,7 @@ void MyOwnDataArrayProtocolHandlers::on_PutDataArrays(const Energistics::Etp::v1
 			for (size_t i = 0; i < pdat.second.array.dimensions.size(); ++i) {
 				numValuesInEachDimension[i] = pdat.second.array.dimensions[i];
 			}
-			if (pdat.second.array.data.item.idx() == Energistics::Etp::v12::Datatypes::AnyArrayType::arrayOfBoolean) {
+			if (pdat.second.array.data.item.idx() == 0) {
 				std::unique_ptr<char[]> tmp(new char[pdat.second.array.data.item.get_ArrayOfBoolean().values.size()]());
 				for (size_t i = 0; i < pdat.second.array.data.item.get_ArrayOfBoolean().values.size(); ++i) {
 					tmp[i] = pdat.second.array.data.item.get_ArrayOfBoolean().values[i] ? 1 : 0;
@@ -151,28 +151,28 @@ void MyOwnDataArrayProtocolHandlers::on_PutDataArrays(const Energistics::Etp::v1
 				hdfProxy->writeArrayNdOfCharValues(pdat.second.uid.pathInResource.substr(0, lastSlash), pdat.second.uid.pathInResource.substr(lastSlash + 1),
 					tmp.get(), numValuesInEachDimension.get(), pdat.second.array.dimensions.size());
 			}
-			else if (pdat.second.array.data.item.idx() == Energistics::Etp::v12::Datatypes::AnyArrayType::arrayOfInt) {
+			else if (pdat.second.array.data.item.idx() == 1) {
 				hdfProxy->writeArrayNdOfIntValues(pdat.second.uid.pathInResource.substr(0, lastSlash), pdat.second.uid.pathInResource.substr(lastSlash + 1),
 					pdat.second.array.data.item.get_ArrayOfInt().values.data(), numValuesInEachDimension.get(), pdat.second.array.dimensions.size());
 			}
-			else if (pdat.second.array.data.item.idx() == Energistics::Etp::v12::Datatypes::AnyArrayType::arrayOfLong) {
+			else if (pdat.second.array.data.item.idx() == 2) {
 				hdfProxy->writeArrayNdOfInt64Values(pdat.second.uid.pathInResource.substr(0, lastSlash), pdat.second.uid.pathInResource.substr(lastSlash + 1),
 					pdat.second.array.data.item.get_ArrayOfLong().values.data(), numValuesInEachDimension.get(), pdat.second.array.dimensions.size());
 			}
-			else if (pdat.second.array.data.item.idx() == Energistics::Etp::v12::Datatypes::AnyArrayType::arrayOfFloat) {
+			else if (pdat.second.array.data.item.idx() == 3) {
 				hdfProxy->writeArrayNdOfFloatValues(pdat.second.uid.pathInResource.substr(0, lastSlash), pdat.second.uid.pathInResource.substr(lastSlash + 1),
 					pdat.second.array.data.item.get_ArrayOfFloat().values.data(), numValuesInEachDimension.get(), pdat.second.array.dimensions.size());
 			}
-			else if (pdat.second.array.data.item.idx() == Energistics::Etp::v12::Datatypes::AnyArrayType::arrayOfDouble) {
+			else if (pdat.second.array.data.item.idx() == 4) {
 				hdfProxy->writeArrayNdOfDoubleValues(pdat.second.uid.pathInResource.substr(0, lastSlash), pdat.second.uid.pathInResource.substr(lastSlash + 1),
 					pdat.second.array.data.item.get_ArrayOfDouble().values.data(), numValuesInEachDimension.get(), pdat.second.array.dimensions.size());
 			}
-			else if (pdat.second.array.data.item.idx() == Energistics::Etp::v12::Datatypes::AnyArrayType::arrayOfString) {
+			else if (pdat.second.array.data.item.idx() == 5) {
 				pe.errors[pdat.first].message = "Putting a string array is not supported yet.";
 				pe.errors[pdat.first].code = 7;
 				continue;
 			}
-			else if (pdat.second.array.data.item.idx() == Energistics::Etp::v12::Datatypes::AnyArrayType::bytes) {
+			else if (pdat.second.array.data.item.idx() == 6) {
 				std::unique_ptr<char[]> tmp(new char[pdat.second.array.data.item.get_bytes().size()]());
 				for (size_t i = 0; i < pdat.second.array.data.item.get_bytes().size(); ++i) {
 					tmp[i] = pdat.second.array.data.item.get_bytes()[i];
@@ -332,24 +332,29 @@ void MyOwnDataArrayProtocolHandlers::on_GetDataArrayMetadata(const Energistics::
 			auto dt = hdfProxy->getHdfDatatypeInDataset(dai.pathInResource);
 			if (dt == COMMON_NS::AbstractObject::DOUBLE)
 			{
-				dam.arrayType = Energistics::Etp::v12::Datatypes::AnyArrayType::arrayOfDouble;
+				dam.transportArrayType = Energistics::Etp::v12::Datatypes::AnyArrayType::arrayOfDouble;
+				dam.logicalArrayType = Energistics::Etp::v12::Datatypes::AnyLogicalArrayType::arrayOfDouble64LE;
 			}
 			else if (dt == COMMON_NS::AbstractObject::FLOAT)
 			{
-				dam.arrayType = Energistics::Etp::v12::Datatypes::AnyArrayType::arrayOfFloat;
+				dam.transportArrayType = Energistics::Etp::v12::Datatypes::AnyArrayType::arrayOfFloat;
+				dam.logicalArrayType = Energistics::Etp::v12::Datatypes::AnyLogicalArrayType::arrayOfFloat32LE;
 			}
 			else if (dt == COMMON_NS::AbstractObject::LONG_64 || dt == COMMON_NS::AbstractObject::ULONG_64)
 			{
-				dam.arrayType = Energistics::Etp::v12::Datatypes::AnyArrayType::arrayOfLong;
+				dam.transportArrayType = Energistics::Etp::v12::Datatypes::AnyArrayType::arrayOfLong;
+				dam.logicalArrayType = Energistics::Etp::v12::Datatypes::AnyLogicalArrayType::arrayOfInt64LE;
 			}
 			else if (dt == COMMON_NS::AbstractObject::INT || dt == COMMON_NS::AbstractObject::UINT ||
 				dt == COMMON_NS::AbstractObject::SHORT || dt == COMMON_NS::AbstractObject::USHORT)
 			{
-				dam.arrayType = Energistics::Etp::v12::Datatypes::AnyArrayType::arrayOfInt;
+				dam.transportArrayType = Energistics::Etp::v12::Datatypes::AnyArrayType::arrayOfInt;
+				dam.logicalArrayType = Energistics::Etp::v12::Datatypes::AnyLogicalArrayType::arrayOfInt32LE;
 			}
 			else if (dt == COMMON_NS::AbstractObject::CHAR || dt == COMMON_NS::AbstractObject::UCHAR)
 			{
-				dam.arrayType = Energistics::Etp::v12::Datatypes::AnyArrayType::bytes;
+				dam.transportArrayType = Energistics::Etp::v12::Datatypes::AnyArrayType::bytes;
+				dam.logicalArrayType = Energistics::Etp::v12::Datatypes::AnyLogicalArrayType::arrayOfInt8;
 			}
 			gdamResponse.arrayMetadata[element.first] = dam;
 		}
