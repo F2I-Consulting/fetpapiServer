@@ -41,6 +41,61 @@ public:
 	MyServerInitializationParameters(MyDataObjectRepository* repo, boost::uuids::uuid instanceUuid, const std::string & host, unsigned short port) : ETP_NS::ServerInitializationParameters(instanceUuid, host, port), repo_(repo) {}
 	~MyServerInitializationParameters() = default;
 
+	std::vector<Energistics::Etp::v12::Datatypes::SupportedDataObject> makeSupportedDataObjects() const final
+	{
+		std::vector<Energistics::Etp::v12::Datatypes::SupportedDataObject> result;
+
+		Energistics::Etp::v12::Datatypes::SupportedDataObject supportedDataObject;
+		supportedDataObject.qualifiedType = "resqml20.*";
+		Energistics::Etp::v12::Datatypes::DataValue value;
+		value.item.set_boolean(false);
+		supportedDataObject.dataObjectCapabilities["SupportsDelete"] = value;
+		result.push_back(supportedDataObject);
+		supportedDataObject.qualifiedType = "resqml22.*";
+		result.push_back(supportedDataObject);
+
+		supportedDataObject.qualifiedType = "eml20.EpcExternalPartReference";
+		result.push_back(supportedDataObject);
+		supportedDataObject.qualifiedType = "eml21.PropertyKind";
+		result.push_back(supportedDataObject);
+		supportedDataObject.qualifiedType = "eml23.Activity";
+		result.push_back(supportedDataObject);
+		supportedDataObject.qualifiedType = "eml23.ActivityTemplate";
+		result.push_back(supportedDataObject);
+		supportedDataObject.qualifiedType = "eml23.GraphicalInformationSet";
+		result.push_back(supportedDataObject);
+		supportedDataObject.qualifiedType = "eml23.PropertyKind";
+		result.push_back(supportedDataObject);
+		supportedDataObject.qualifiedType = "eml23.TimeSeries";
+		result.push_back(supportedDataObject);
+		supportedDataObject.qualifiedType = "eml23.EpcExternalPartReference";
+		result.push_back(supportedDataObject);
+
+		supportedDataObject.qualifiedType = "witsml20.Channel";
+		result.push_back(supportedDataObject);
+		supportedDataObject.qualifiedType = "witsml20.Trajectory";
+		result.push_back(supportedDataObject);
+		supportedDataObject.qualifiedType = "witsml20.Well";
+		result.push_back(supportedDataObject);
+		supportedDataObject.qualifiedType = "witsml20.Wellbore";
+		result.push_back(supportedDataObject);
+		supportedDataObject.qualifiedType = "witsml20.WellboreCompletion";
+		result.push_back(supportedDataObject);
+		supportedDataObject.qualifiedType = "witsml20.WellboreGeometry";
+		result.push_back(supportedDataObject);
+		supportedDataObject.qualifiedType = "witsml20.WellCompletion";
+		result.push_back(supportedDataObject);
+
+		supportedDataObject.qualifiedType = "prodml21.FluidCharacterization";
+		result.push_back(supportedDataObject);
+		supportedDataObject.qualifiedType = "prodml21.FluidSystem";
+		result.push_back(supportedDataObject);
+		supportedDataObject.qualifiedType = "prodml21.TimeSeriesData";
+		result.push_back(supportedDataObject);
+
+		return result;
+	}
+
 	void postSessionCreationOperation(ETP_NS::AbstractSession* session) const final {
 		session->setCoreProtocolHandlers(std::make_shared<ETP_NS::CoreHandlers>(session));
 		session->setDiscoveryProtocolHandlers(std::make_shared<MyOwnDiscoveryProtocolHandlers>(session, repo_));
