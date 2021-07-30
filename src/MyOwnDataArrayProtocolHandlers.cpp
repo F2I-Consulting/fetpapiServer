@@ -204,10 +204,11 @@ void MyOwnDataArrayProtocolHandlers::on_PutDataArrays(const Energistics::Etp::v1
 
 void MyOwnDataArrayProtocolHandlers::on_GetDataSubarrays(const Energistics::Etp::v12::Protocol::DataArray::GetDataSubarrays & msg, int64_t correlationId)
 {
-	Energistics::Etp::v12::Protocol::DataArray::GetDataSubarraysResponse response;
+	for (auto it = msg.dataSubarrays.begin(); it != msg.dataSubarrays.end(); ++it) {
+		Energistics::Etp::v12::Protocol::DataArray::GetDataSubarraysResponse response;
+		Energistics::Etp::v12::Protocol::Core::ProtocolException pe;
 
-	Energistics::Etp::v12::Protocol::Core::ProtocolException pe;
-	for (const std::pair < std::string, Energistics::Etp::v12::Datatypes::DataArrayTypes::GetDataSubarraysType >& element : msg.dataSubarrays) {
+		auto element = *it;
 		Energistics::Etp::v12::Datatypes::DataArrayTypes::DataArrayIdentifier dai = element.second.uid;
 		BOOST_LOG_TRIVIAL(trace) << "Data subarray received uri : " << dai.uri;
 		for (auto start : element.second.starts) {
@@ -283,21 +284,16 @@ void MyOwnDataArrayProtocolHandlers::on_GetDataSubarrays(const Energistics::Etp:
 			}
 
 			response.dataSubarrays[element.first] = da;
+
+			session->send(response, correlationId, std::next(it) == msg.dataSubarrays.end() ? 0x02 : 0);
 		}
 		catch (ETP_NS::EtpException& ex)
 		{
 			pe.errors[element.first].message = ex.what();
 			pe.errors[element.first].code = ex.getErrorCode();
-			continue;
-		}
-	}
 
-	if (!pe.errors.empty()) {
-		session->send(response, correlationId);
-		session->send(pe, correlationId, 0x02);
-	}
-	else {
-		session->send(response, correlationId, 0x02);
+			session->send(pe, correlationId, std::next(it) == msg.dataSubarrays.end() ? 0x02 : 0);
+		}
 	}
 }
 

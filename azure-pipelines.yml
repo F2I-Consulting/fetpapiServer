@@ -91,7 +91,7 @@ jobs:
       
       # fesapi 
       - powershell: |
-          git clone https://github.com/F2I-Consulting/fesapi.git $(Agent.TempDirectory)/fesapi
+          git clone https://github.com/F2I-Consulting/fesapi.git -b v2.1.1.0 $(Agent.TempDirectory)/fesapi
         displayName: 'Cloning fesapi'
       - task: CMake@1
         displayName: 'CMake configure fesapi'
@@ -140,7 +140,7 @@ jobs:
             -DWITH_FESAPI=TRUE
             -DHDF5_C_INCLUDE_DIR=$(Agent.TempDirectory)/hdf5-1.10.6-win64-vs2017/include
             -DFESAPI_INCLUDE_DIR=$(Agent.TempDirectory)/fesapi-install/include
-            -DFESAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fesapi-install/lib/FesapiCpp.2.1.0.0.lib
+            -DFESAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fesapi-install/lib/FesapiCpp.2.1.1.0.lib
             -DCMAKE_INSTALL_PREFIX=$(Agent.TempDirectory)/fetpapi-install
       - task: CMake@1
         displayName: "CMake build fetpapi --config $(BuildType)"
@@ -166,7 +166,7 @@ jobs:
             -DAVRO_INCLUDE_DIR=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/include
             -DAVRO_LIBRARY_RELEASE=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/lib/avrocpp_s.lib
             -DFESAPI_INCLUDE_DIR=$(Agent.TempDirectory)/fesapi-install/include
-            -DFESAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fesapi-install/lib/FesapiCpp.2.1.0.0.lib
+            -DFESAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fesapi-install/lib/FesapiCpp.2.1.1.0.lib
 
       - task: CMake@1
         displayName: "Build --config $(BuildType)"
@@ -265,7 +265,7 @@ jobs:
           
       # fesapi
       - powershell: |
-          git clone https://github.com/F2I-Consulting/fesapi.git $(Agent.TempDirectory)/fesapi
+          git clone https://github.com/F2I-Consulting/fesapi.git -b v2.1.1.0 $(Agent.TempDirectory)/fesapi
         displayName: 'Cloning fesapi'
       - task: CMake@1
         displayName: 'CMake configure fesapi'
@@ -316,7 +316,7 @@ jobs:
             -DWITH_FESAPI=TRUE
             -DHDF5_C_INCLUDE_DIR=$(Agent.TempDirectory)/hdf5-1.12.0-win64-vs2019/include
             -DFESAPI_INCLUDE_DIR=$(Agent.TempDirectory)/fesapi-install/include
-            -DFESAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fesapi-install/lib/FesapiCpp.2.1.0.0.lib
+            -DFESAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fesapi-install/lib/FesapiCpp.2.1.1.0.lib
             -DCMAKE_INSTALL_PREFIX=$(Agent.TempDirectory)/fetpapi-install
       - task: CMake@1
         displayName: "CMake build fetpapi --config $(BuildType)"
@@ -342,7 +342,7 @@ jobs:
             -DAVRO_INCLUDE_DIR=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/include
             -DAVRO_LIBRARY_RELEASE=$(Agent.TempDirectory)/avro-cpp-1.10.2-install/lib/avrocpp_s.lib
             -DFESAPI_INCLUDE_DIR=$(Agent.TempDirectory)/fesapi-install/include
-            -DFESAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fesapi-install/lib/FesapiCpp.2.1.0.0.lib
+            -DFESAPI_LIBRARY_RELEASE=$(Agent.TempDirectory)/fesapi-install/lib/FesapiCpp.2.1.1.0.lib
             
       - task: CMake@1
         displayName: "Build --config $(BuildType)"
@@ -392,7 +392,7 @@ jobs:
 
       # fesapi
       - script: |
-          git clone https://github.com/F2I-Consulting/fesapi.git $(Agent.TempDirectory)/fesapi
+          git clone https://github.com/F2I-Consulting/fesapi.git -b v2.1.1.0 $(Agent.TempDirectory)/fesapi
         displayName: 'Cloning fesapi'
       - task: CMake@1
         displayName: 'CMake configure fesapi'
