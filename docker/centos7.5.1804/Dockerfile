@@ -43,7 +43,8 @@ yum --enablerepo=epel install -y \
 	# cmake3 is used to automatize building configuration
 	cmake3 \
 	# boost is a dependence of both avro and fesapi etp
-	boost169-static && \
+	boost169-static \
+	boost169-devel && \
 \
 ##############
 # hdf5 install
@@ -74,7 +75,7 @@ make install && \
 # avro install
 # avro is a dependence of fesapi etp
 cd ../.. && \
-wget https://apache.mirrors.benatherton.com/avro/stable/cpp/avro-cpp-1.10.2.tar.gz && \
+wget https://mirroir.wptheme.fr/apache/avro/avro-1.10.2/cpp/avro-cpp-1.10.2.tar.gz && \
 tar xf avro-cpp-1.10.2.tar.gz && \
 cd avro-cpp-1.10.2 && \
 mkdir build && \
@@ -85,7 +86,7 @@ make install && \
 ################
 # fesapi install
 cd ../../.. && \
-git clone https://github.com/F2I-Consulting/fesapi.git && \
+git clone https://github.com/F2I-Consulting/fesapi.git -b v2.1.1.0 && \
 cd fesapi && \
 cd ..  && \
 mkdir fesapi-build && \
@@ -97,12 +98,11 @@ cmake3 \
 	-DMINIZIP_LIBRARY_RELEASE=/usr/lib64/libminizip.so \
  	-DZLIB_INCLUDE_DIR=/usr/include \
  	-DZLIB_LIBRARY_RELEASE=/usr/lib64/libz.so \
-	-DBOOST_INCLUDEDIR=/usr/include/boost169 \
+	-DBoost_INCLUDE_DIR=/usr/include/boost169 \
 	-DBOOST_LIBRARYDIR=/usr/lib64/boost169 \
 	-DAVRO_INCLUDE_DIR=/usr/local/include/avro \
 	-DAVRO_LIBRARY_RELEASE=/usr/local/lib/libavrocpp_s.a \
 	-DCMAKE_BUILD_TYPE=Release \
-	-DBoost_USE_STATIC_LIBS=ON \
 	-DBoost_USE_DEBUG_LIBS=OFF \
 	-DBoost_USE_RELEASE_LIBS=ON \
 	-DBoost_USE_MULTITHREADED=ON \
@@ -110,7 +110,7 @@ cmake3 \
 	-DWITH_EXAMPLE=TRUE \
 	../fesapi && \
 make VERBOSE=OFF && \
-make install && \ 
+make install && \
 \
 #################
 # fetpapi install
@@ -130,7 +130,6 @@ cmake3 \
     -DFESAPI_INCLUDE_DIR=../fesapi-build/install/include \
     -DFESAPI_LIBRARY_RELEASE=../fesapi-build/install/lib64/libFesapiCpp.so \
 	-DCMAKE_BUILD_TYPE=Release \
-	-DBoost_USE_STATIC_LIBS=ON \
 	-DBoost_USE_DEBUG_LIBS=OFF \
 	-DBoost_USE_RELEASE_LIBS=ON \
 	-DBoost_USE_MULTITHREADED=ON \
@@ -141,7 +140,7 @@ make install && \
 \
 #######################
 # fetpapiServer install
-cd  .. && \
+cd .. && \
 git clone https://github.com/F2I-Consulting/fetpapiServer.git && \
 cd fetpapiServer && \
 cd .. && \
@@ -157,7 +156,6 @@ cmake3 \
 	-DFESAPI_INCLUDE_DIR=../fesapi-build/install/include \
 	-DFESAPI_LIBRARY_RELEASE=../fesapi-build/install/lib64/libFesapiCpp.so \
 	-DCMAKE_BUILD_TYPE=Release \
-	-DBoost_USE_STATIC_LIBS=ON \
 	-DBoost_USE_DEBUG_LIBS=OFF \
 	-DBoost_USE_RELEASE_LIBS=ON \
 	-DBoost_USE_MULTITHREADED=ON \
