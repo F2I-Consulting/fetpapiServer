@@ -4,6 +4,13 @@ project(Fetpapi_Server)
 
 set (APPLICATION_NAME fetpapiServer)
 
+# version mechanism
+set (FetpapiServer_VERSION_MAJOR 0)
+set (FetpapiServer_VERSION_MINOR 1)
+set (FetpapiServer_VERSION_PATCH 0)
+set (FetpapiServer_VERSION_TWEAK 0)
+set (FetpapiServer_VERSION ${Fetpapi_VERSION_MAJOR}.${FetpapiServer_VERSION_MINOR}.${FetpapiServer_VERSION_PATCH}.${FetpapiServer_VERSION_TWEAK})
+
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -126,7 +133,7 @@ if (WIN32)
 		target_link_libraries (${APPLICATION_NAME} PRIVATE ${AVRO_LIBRARY_RELEASE})
 	elseif (EXISTS ${AVRO_LIBRARY_DEBUG})
 		target_link_libraries (${APPLICATION_NAME} PRIVATE ${AVRO_LIBRARY_DEBUG})
-	endif ()	
+	endif ()
 else (WIN32)
 	target_link_libraries (${APPLICATION_NAME} PRIVATE ${FESAPI_LIBRARY_RELEASE})
 	target_link_libraries (${APPLICATION_NAME} PRIVATE ${FETPAPI_LIBRARY_RELEASE})

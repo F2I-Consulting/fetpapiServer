@@ -75,7 +75,7 @@ make install && \
 # avro install
 # avro is a dependence of fesapi etp
 cd ../.. && \
-wget https://mirroir.wptheme.fr/apache/avro/avro-1.10.2/cpp/avro-cpp-1.10.2.tar.gz && \
+wget https://archive.apache.org/dist/avro/avro-1.10.2/cpp/avro-cpp-1.10.2.tar.gz && \
 tar xf avro-cpp-1.10.2.tar.gz && \
 cd avro-cpp-1.10.2 && \
 mkdir build && \
